@@ -39,4 +39,13 @@ public class Backup {
 			System.out.println("Export failure : " + ignored.toString());
 		}
 	}
+	
+	public static Backup loadBackups(String name) {
+		try {
+			String text = new String(Files.readAllBytes(Paths.get(Main.GENERATION_PAYH + File.separator + name)), StandardCharsets.UTF_8);
+			return new Gson().fromJson(text, Backup.class);
+		}catch(Exception ignored) {
+			return null;
+		}
+	}
 }

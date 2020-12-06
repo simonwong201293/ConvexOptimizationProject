@@ -14,13 +14,15 @@ height_in_inches = 7
 dots_per_inch = 66
 plt.rcParams.update({'font.size': 24})
 
-y = [[0 for x in range(4)] for y in range(5)]
+y = [[0 for x in range(3)] for y in range(5)]
+print(y)
 for i in range(5):
-    for j in range(4):
-        y[i][j] = float(json_data[i*4+j]["averageFlowtime"])
-        print('i = {}, j = {}, value = {}'.format(i, j, json_data[i*4+j]["averageFlowtime"]))
+    for j in range(3):
+        y[i][j] = float(json_data[i*3+j]["averageFlowtime"])
+        # print(json_data[i*4+j]["averageFlowtime"])
+        print('i = {}, j = {}, value = {}'.format(i, j, json_data[i*3+j]["averageFlowtime"]))
 
-x = ['1', '10', '100', '1000']
+x = ['100', '10', '1']
 labels = ['FIFO', 'SVF', 'EDF', 'STRF', 'Proposed']
 color = ["#1F78B4", "#33A02C", "#FF7F00", "#FB9A99", "#CAB2D6"]
 marker = ['o', 'x', '^', '>', '<']
@@ -47,7 +49,7 @@ axes = fig.gca()
 # axes.grid(which='major', alpha=0.5)
 # axes.set_xlim([0,110])
 axes.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-axes.set_xlabel('Total number of servers')
+axes.set_xlabel('JTSR')
 # axes.set_ylim([0,1.1])
 
 axes.set_ylabel('Average Flowtime, $\overline{p}$ \n(Time unit)')
@@ -57,11 +59,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y2 = [[0 for x in range(4)] for y in range(5)]
+y2 = [[0 for x in range(3)] for y in range(5)]
 for i in range(5):
-    for j in range(4):
-        y2[i][j] = float(json_data[i*4+j]["variationFlowtime"])/1000.0
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*4+j]["variationFlowtime"])/1000.0))
+    for j in range(3):
+        y2[i][j] = float(json_data[i*3+(3-j)]["variationFlowtime"])/1000.0
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["variationFlowtime"])/1000.0))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
@@ -72,7 +74,7 @@ for label in labels:
     i = i + 1
 axes = fig.gca()
 # axes.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-axes.set_xlabel('Total number of servers')
+axes.set_xlabel('JTSR')
 axes.set_ylabel('Variation of Flowtime, $\sigma_p$ \n($10^3$)')
 plt.legend(ncol=2,prop={'size': 24})
 plt.tight_layout()
@@ -80,11 +82,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y3 = [[0 for x in range(4)] for y in range(5)]
+y3 = [[0 for x in range(3)] for y in range(5)]
 for i in range(5):
-    for j in range(4):
-        y3[i][j] = float(json_data[i*4+j]["reliability"])*100.0
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*4+j]["reliability"])*100.0))
+    for j in range(3):
+        y3[i][j] = float(json_data[i*3+(3-j)]["reliability"])*100.0
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["reliability"])*100.0))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
@@ -95,7 +97,7 @@ for label in labels:
     i = i + 1
 axes = fig.gca()
 # axes.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-axes.set_xlabel('Total number of servers')
+axes.set_xlabel('JTSR')
 axes.set_ylabel('Reliability, $\overline{r}$ (%)')
 plt.legend(ncol=2,prop={'size': 24})
 plt.tight_layout()
@@ -103,11 +105,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y4 = [[0 for x in range(4)] for y in range(5)]
+y4 = [[0 for x in range(3)] for y in range(5)]
 for i in range(5):
-    for j in range(4):
-        y4[i][j] = float(json_data[i*4+j]["maxFlowtime"])
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*4+j]["maxFlowtime"])))
+    for j in range(3):
+        y4[i][j] = float(json_data[i*3+(3-j)]["maxFlowtime"])
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["maxFlowtime"])))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
@@ -118,7 +120,7 @@ for label in labels:
     i = i + 1
 axes = fig.gca()
 # axes.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-axes.set_xlabel('Total number of servers')
+axes.set_xlabel('JTSR')
 axes.set_ylabel('Max. Flowtime \n(Time Unit)')
 plt.legend(ncol=2,prop={'size': 24})
 plt.tight_layout()

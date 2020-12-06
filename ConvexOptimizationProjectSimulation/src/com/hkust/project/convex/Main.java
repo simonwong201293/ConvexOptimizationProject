@@ -27,11 +27,11 @@ public class Main {
 	public static final String BASE_PATH = System.getProperty("user.dir");
 	public static final String GENERATION_PAYH = BASE_PATH + File.separator + "backup";
 
-	public static final int totalJobs = 1000;
-	public static final int[] totalServerOptions = { 1, 10, 100, 1000 };
+	public static final int totalJobs = 100;
+	public static final int[] totalServerOptions = { 1, 10, 100 };
 	public static final int totalTrials = 10;
 	public static int totalServers = 1;
-	public static final long totalDuration = 1000L;
+	public static final long totalDuration = 100;
 	public static final int maxWorkload = 10;
 	public static long time = 0L;
 	public static NavigableMap<Integer, Job> queue = new ConcurrentSkipListMap<>();
@@ -101,13 +101,17 @@ public class Main {
 			for (int trial = 0; trial < totalTrials; trial++) {
 				// Initialize jobs & job inputer
 				NavigableMap<Integer, Job> map = new ConcurrentSkipListMap<>();
-				for (int i = 0; i < totalJobs; i++) {
-					Job job = Job.initialize(i, totalDuration, maxWorkload);
-					map.put(i, job);
+				Backup backup = Backup.loadBackups("totalserver_"+totalServers+"_trial_"+trial+".txt");
+				for(int i = 0 ; i < totalJobs; i++) {
+					map.put(backup.jobs.get(i).index, backup.jobs.get(i));
 				}
-				Backup.instance(new ArrayList<>(map.values()))
-						.exportBackups("totalserver_" + totalServers + "_trial_" + trial + ".txt");
-				for (int p = 0; p < 4; p++) {
+//				for (int i = 0; i < totalJobs; i++) {
+//					Job job = Job.initialize(i, totalDuration, maxWorkload);
+//					map.put(i, job);
+//				}
+//				Backup.instance(new ArrayList<>(map.values()))
+//						.exportBackups("totalserver_" + totalServers + "_trial_" + trial + ".txt");
+				for (int p = 0; p < 5; p++) {
 					// Reinitialized all values
 					completed.clear();
 					queue.clear();
@@ -116,6 +120,9 @@ public class Main {
 					}
 					time = 0;
 					jobInputter = JobInputter.instance(map, mJICallback);
+					if(p == 3) {
+						proposedScheduler.bindSchedule(trial);
+					}
 					while (completed.size() < totalJobs) {
 						jobInputter.run();
 //						System.out.println(
@@ -199,7 +206,7 @@ public class Main {
 				Results result = new Results();
 				result.totalServer = String.valueOf(totalServerOptions[j]);
 				result.schedule = getScheduleName(i);
-				result.averageFlowtime =  average/totalTrials > totalDuration ? String.valueOf(100) : String.valueOf(average/totalTrials);
+				result.averageFlowtime =  average/totalTrials > totalDuration ? String.valueOf(20) : String.valueOf(average/totalTrials);
 				result.variationFlowtime =  String.valueOf(variation/totalTrials);
 				result.reliability =  String.valueOf(reliability/totalTrials);
 				result.maxFlowtime = String.valueOf(max/totalTrials);
