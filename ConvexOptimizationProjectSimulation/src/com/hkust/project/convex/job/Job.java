@@ -14,7 +14,7 @@ public class Job {
 
 	public static Job initialize(int index, long totalDuration, int maxWorkLoad) {
 		Job job = new Job();
-		Random rand = new Random(System.currentTimeMillis());
+		Random rand = new Random(System.currentTimeMillis()*123);
 		job.index = index;
 		job.workload = rand.nextInt(maxWorkLoad-1)+1;
 		while (job.arrivalTime == -1L) {

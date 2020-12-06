@@ -16,18 +16,18 @@ public class SVFJobScheduler extends JobScheduler{
 
 	@Override
 	public  Map<Integer, Job> assignJob(List<Job> jobs, List<Server> servers) {
-		Collections.sort(jobs, new Comparator<Job>() {
+		List<Job> clonedJobs = new ArrayList<>(jobs);
+		Collections.sort(clonedJobs, new Comparator<Job>() {
 			@Override
 			public int compare(Job arg0, Job arg1) {
 				return arg0.workload > arg1.workload ? 1 : arg0.workload < arg1.workload ? -1 : 0;
 			}
-			
 		});
 		Set<Integer> assignedSet = new HashSet<>();
 		Map<Integer, Job> result = new HashMap<>();
 		for (Server server : servers) {
 			if(server.occupied) continue;
-			for(Job j : jobs) {
+			for(Job j : clonedJobs) {
 				if(assignedSet.contains(j.index)) continue;
 				result.put(server.index, j);
 				assignedSet.add(j.index);
