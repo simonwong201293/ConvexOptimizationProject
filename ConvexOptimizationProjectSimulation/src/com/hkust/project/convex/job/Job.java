@@ -23,7 +23,6 @@ public class Job {
 				job.arrivalTime = tmpArrivalTime;
 			}
 		}
-		System.out.println("min = " + maxWorkLoad + ", max = " + (totalDuration - job.arrivalTime) +", arrival = " + job.arrivalTime + ", workload = " + job.workload);
 		job.deadline = job.arrivalTime + ThreadLocalRandom.current().nextLong(job.workload, totalDuration - job.arrivalTime);
 		return job;
 	}
