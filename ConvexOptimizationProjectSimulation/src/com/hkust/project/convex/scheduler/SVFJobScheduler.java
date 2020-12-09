@@ -31,6 +31,7 @@ public class SVFJobScheduler extends JobScheduler{
 				if(assignedSet.contains(j.index)) continue;
 				result.put(server.index, j);
 				assignedSet.add(j.index);
+				servers.get(server.index).occupied = true;
 			}
 		}
 		return result;

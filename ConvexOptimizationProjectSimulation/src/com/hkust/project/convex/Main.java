@@ -2,6 +2,8 @@ package com.hkust.project.convex;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -28,8 +30,8 @@ public class Main {
 	public static final String GENERATION_PAYH = BASE_PATH + File.separator + "backup";
 
 	public static final int totalJobs = 100;
-	public static final int[] totalServerOptions = { 1, 10, 100 };
-	public static final int totalTrials = 10;
+	public static final int[] totalServerOptions = { 1 };
+	public static final int totalTrials = 1;
 	public static int totalServers = 1;
 	public static final long totalDuration = 100;
 	public static final int maxWorkload = 10;
@@ -42,7 +44,8 @@ public class Main {
 	public static double relability[][][] = new double[5][totalTrials][totalServerOptions.length];
 	public static double variationFlowtime[][][] = new double[5][totalTrials][totalServerOptions.length];
 	public static double maxFlowtime[][][] = new double[5][totalTrials][totalServerOptions.length];
-	
+	public static List<double[]> assigned = new ArrayList<>();;
+
 	// Job Scheduler
 	public static FIFOJobScheduler fifoScheduler = new FIFOJobScheduler();
 	public static SVFJobScheduler svfScheduler = new SVFJobScheduler();
@@ -50,13 +53,14 @@ public class Main {
 	public static STRFJobScheduler strfScheduler = new STRFJobScheduler();
 	public static ProposedJobScheduler proposedScheduler = new ProposedJobScheduler();
 
+	public static boolean startLog = false;
+
 	// Job Inputter
 	public static JobInputter jobInputter;
 	public static JobInputterCallback mJICallback = new JobInputterCallback() {
 		@Override
 		public void onJobInserted(Job job) {
 			queue.put(job.index, job);
-			// System.out.println("Inserted a job to Queue (size = " + queue.size()+")");
 		}
 
 		@Override
@@ -74,15 +78,28 @@ public class Main {
 		public void onServerCompleted(int index, Job job) {
 			job.completedTime = Main.time;
 			completed.put(job.index, job);
-//			System.out.println(
-//					"Job#" + job.index + " Done by Server#" + index + ", Completed Job size = " + completed.size());
 		}
 
 		@Override
 		public void onJobReceived(int index, Job job, Server server) {
 			servers.put(index, server);
-//			System.out.println(
-//					"Job#" + job.index + " Received by Server#" + index + ", Remaining Queue size = " + queue.size());
+			if (startLog) {
+				double tmp[] = new double[3];
+				tmp[0] = job.index;
+				tmp[1] = server.index;
+				tmp[2] = time;
+				assigned.add(tmp);
+			}
+		}
+
+		@Override
+		public void onServerJobUpdate(int index, Job job) {
+			if(job.remainingWorkload == 0) {
+				job.completedTime = Main.time;
+				completed.put(job.index, job);
+			}else {
+				queue.put(job.index, job);
+			}
 		}
 	};
 
@@ -100,33 +117,34 @@ public class Main {
 			}
 			for (int trial = 0; trial < totalTrials; trial++) {
 				// Initialize jobs & job inputer
+				// Load Job
 				NavigableMap<Integer, Job> map = new ConcurrentSkipListMap<>();
-				Backup backup = Backup.loadBackups("totalserver_"+totalServers+"_trial_"+trial+".txt");
-				for(int i = 0 ; i < totalJobs; i++) {
+				Backup backup = Backup.loadBackups("totalserver_" + totalServers + "_trial_" + trial + ".txt");
+				for (int i = 0; i < totalJobs; i++) {
 					map.put(backup.jobs.get(i).index, backup.jobs.get(i));
+					map.get(backup.jobs.get(i).index).remainingWorkload = map.get(backup.jobs.get(i).index).workload;
 				}
-//				for (int i = 0; i < totalJobs; i++) {
-//					Job job = Job.initialize(i, totalDuration, maxWorkload);
-//					map.put(i, job);
-//				}
-//				Backup.instance(new ArrayList<>(map.values()))
-//						.exportBackups("totalserver_" + totalServers + "_trial_" + trial + ".txt");
+				// Generate Jobs
+				// for (int i = 0; i < totalJobs; i++) {
+				// Job job = Job.initialize(i, totalDuration, maxWorkload);
+				// map.put(i, job);
+				// }
+				// Backup.instance(new ArrayList<>(map.values()))
+				// .exportBackups("totalserver_" + totalServers + "_trial_" + trial + ".txt");
 				for (int p = 0; p < 5; p++) {
 					// Reinitialized all values
 					completed.clear();
 					queue.clear();
-					for(Job j : map.values()) {
+					for (Job j : map.values()) {
 						j.completedTime = -1L;
 					}
 					time = 0;
 					jobInputter = JobInputter.instance(map, mJICallback);
-					if(p == 3) {
+					if (p == 3) {
 						proposedScheduler.bindSchedule(trial);
 					}
 					while (completed.size() < totalJobs) {
 						jobInputter.run();
-//						System.out.println(
-//								"Jobs in queue(" + queue.size() + "),completed(" + completed.size() + ") @" + time);
 						if (queue.size() > 0) {
 							NavigableMap<Integer, Job> tmpQueue = new ConcurrentSkipListMap<>(queue);
 							Map<Integer, Job> schedule;
@@ -134,27 +152,32 @@ public class Main {
 							case 0:
 								schedule = fifoScheduler.assignJob(new ArrayList<>(queue.values()),
 										new ArrayList<>(servers.values()));
+								startLog = false;
 								break;
 							case 1:
 								schedule = svfScheduler.assignJob(new ArrayList<>(queue.values()),
 										new ArrayList<>(servers.values()));
+								startLog = false;
 								break;
 							case 2:
 								schedule = edfScheduler.assignJob(new ArrayList<>(queue.values()),
 										new ArrayList<>(servers.values()));
+								startLog = false;
 								break;
 							case 3:
 								schedule = strfScheduler.assignJob(new ArrayList<>(queue.values()),
 										new ArrayList<>(servers.values()));
+								startLog = false;
 								break;
 							case 4:
 								schedule = proposedScheduler.assignJob(new ArrayList<>(queue.values()),
 										new ArrayList<>(servers.values()));
+								startLog = true;
 								break;
 							default:
 								continue;
 							}
-							
+
 							for (int serverIndex : schedule.keySet()) {
 								servers.get(serverIndex).assign(schedule.get(serverIndex));
 								tmpQueue.remove(schedule.get(serverIndex).index);
@@ -174,7 +197,7 @@ public class Main {
 						totalFlowtime += j.completedTime - j.arrivalTime;
 						variation += (j.deadline - j.completedTime) * (j.deadline - j.completedTime);
 						totalCompleted += (j.completedTime <= j.deadline) ? 1 : 0;
-						if(j.completedTime - j.arrivalTime > max)
+						if (j.completedTime - j.arrivalTime > max)
 							max = j.completedTime - j.arrivalTime;
 					}
 					averageFlowtime[p][trial][k] = (totalFlowtime * 1.0 / totalJobs);
@@ -186,36 +209,50 @@ public class Main {
 		}
 		List<Results> results = new ArrayList<>();
 		System.out.println("Final Result");
-		for(int i = 0 ; i < 5; i++) {
-			for(int j = 0; j < totalServerOptions.length; j++) {
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < totalServerOptions.length; j++) {
 				double average = 0.0, variation = 0.0, reliability = 0.0, max = 0.0;
-				for(int k = 0 ; k < totalTrials; k++) {
-					average +=  averageFlowtime[i][k][j];
+				for (int k = 0; k < totalTrials; k++) {
+					average += averageFlowtime[i][k][j];
 					variation += variationFlowtime[i][k][j];
 					reliability += relability[i][k][j];
 					max += maxFlowtime[i][k][j];
 				}
-				System.out.println(
-						"Total Server: " + totalServerOptions[j] 
-								+ ",\t  Schedule: " + getScheduleName(i) 
-				+ ",\t Average Flowtime: " + average/totalTrials 
-				+ ",\t Variation of Flowtime: " + variation/totalTrials 
-				+ ",\t Reliability: " + reliability/totalTrials
-				+ ",\t Max Flowtime: " + max/totalTrials
-				);
+				System.out.println("Total Server: " + totalServerOptions[j] + ",\t  Schedule: " + getScheduleName(i)
+						+ ",\t Average Flowtime: " + average / totalTrials + ",\t Variation of Flowtime: "
+						+ variation / totalTrials + ",\t Reliability: " + reliability / totalTrials
+						+ ",\t Max Flowtime: " + max / totalTrials);
 				Results result = new Results();
 				result.totalServer = String.valueOf(totalServerOptions[j]);
 				result.schedule = getScheduleName(i);
-				result.averageFlowtime =  average/totalTrials > totalDuration ? String.valueOf(20) : String.valueOf(average/totalTrials);
-				result.variationFlowtime =  String.valueOf(variation/totalTrials);
-				result.reliability =  String.valueOf(reliability/totalTrials);
-				result.maxFlowtime = String.valueOf(max/totalTrials);
+				result.averageFlowtime = average / totalTrials > totalDuration ? String.valueOf(20)
+						: String.valueOf(average / totalTrials);
+				result.variationFlowtime = String.valueOf(variation / totalTrials);
+				result.reliability = String.valueOf(reliability / totalTrials);
+				result.maxFlowtime = String.valueOf(max / totalTrials);
 				results.add(result);
 			}
 		}
 		Utility.exportResults(results);
+		Collections.sort(assigned, new Comparator<double[]>() {
+			@Override
+			public int compare(double[] arg0, double[] arg1) {
+				return arg0[2] > arg1[2] ? 1 : arg0[2] < arg1[2] ? -1 : 0;
+			}
+
+		});
+		for (int i = 0; i < assigned.size(); i++) {
+			System.out.println("Job#" + assigned.get(i)[0] + " received by server#" + assigned.get(i)[1] + "\t @ time#"
+					+ assigned.get(i)[2] + ", given workload=" + completed.get((int) assigned.get(i)[0]).workload
+					+ ", arrival time=" + completed.get((int) assigned.get(i)[0]).arrivalTime + ", complete time="
+					+ completed.get((int) assigned.get(i)[0]).completedTime + ", deadline = "
+					+ completed.get((int) assigned.get(i)[0]).deadline);
+		}
+		for (int i = 0; i < servers.size(); i++) {
+			System.out.println("Server #" + i + " records = " + servers.get(i).getRecords());
+		}
 	}
-	
+
 	public static String getScheduleName(int i) {
 		switch (i) {
 		case 0:

@@ -25,28 +25,38 @@ public class ProposedJobScheduler extends JobScheduler{
 	public  Map<Integer, Job> assignJob(List<Job> jobs, List<Server> servers) {
 		Set<Integer> assignedSet = new HashSet<>();
 		Map<Integer, Job> result = new HashMap<>();
+		System.out.println("Time = " + Main.time);
 		for(Job j : jobs) {
-			boolean isDone = false;
-			while(!isDone) {
-				int[] options = findMaximumIndex(schedule[j.index]);
-				if(options[0] == -1 && options[1] == -1) {
-					for(Server s : servers) {
-						if(!s.occupied) {
-							result.put(s.index, j);
-							assignedSet.add(j.index);
-							break;
-						}
-					}
-				}else if(options[1] > Main.time) break;
-				else if(servers.get(options[0]).occupied) {
-					schedule[j.index][options[0]][options[1]] = -1d;
-					continue;
-				}else {
-					result.put(options[0], j);
-					assignedSet.add(j.index);
-				}
-				isDone = true;
-			}
+//			boolean isDone = false;
+//			if(assignedSet.contains(j.index)) continue;
+//			while(!isDone) {
+//				int[] options = findMaximumIndex(getMatrixfromIndex(schedule, j.index));
+//				System.out.println("Job#"+j.index+", max = server=" + options[0]+", time = " + options[1] +" @ " + Main.time);
+//				if(options[0] == -1 && options[1] == -1) {
+//					for(Server s : servers) {
+//						if(!s.occupied) {
+//							result.put(s.index, j);
+//							assignedSet.add(j.index);
+//							servers.get(s.index).occupied = true;
+//							System.out.println("Job#"+j.index+"assigned to server#"+s.index +" By condition 1");
+//							isDone = true;
+//							break;
+//						}
+//					}
+//					break;
+//				}else if(options[1] > Main.time) {
+//					break;
+//				}else if(servers.get(options[0]).occupied) {
+//					schedule[j.index][options[0]][options[1]] = -1d;
+//					continue;
+//				}
+//				result.put(options[0], j);
+//				assignedSet.add(j.index);
+//				servers.get(options[0]).occupied = true;
+//				System.out.println("Job#"+j.index+"assigned to server#"+options[0] +" By condition 2");
+//				isDone = true;
+//			}
+			
 		}
 //		for (Server server : servers) {
 //			if(server.occupied) continue;
@@ -57,6 +67,17 @@ public class ProposedJobScheduler extends JobScheduler{
 //			}
 //		}
 		return result;
+	}
+	
+	public static Double[][] getMatrixfromIndex(Double[][][] a, int jobIndex){
+		Double[][] matrix = new Double[a[0].length][a[0][0].length];
+//		System.out.println("i = " + a[0].length + ", j = " + a[0][0].length);
+		for(int i = 0 ; i < a[0].length; i++) {
+			for (int j = 0; j < a[0][0].length; j++) {
+				matrix[i][j] = a[jobIndex][i][j];
+			}
+		}
+		return matrix;
 	}
 	
 	 public static int[] findMaximumIndex(Double[][] a)
