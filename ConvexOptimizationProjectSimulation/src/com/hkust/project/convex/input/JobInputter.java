@@ -28,6 +28,10 @@ public class JobInputter {
 		if (done)
 			map.remove(index);
 	}
+	
+	public int getRemainingJobSize() {
+		return map.size();
+	}
 
 	public void run() {
 		NavigableMap<Integer, Job> tmpMap = new ConcurrentSkipListMap<>(map);

@@ -25,6 +25,21 @@ public class Utility {
 		return val;
 	}
 	
+	public static double convert(int option) {
+		switch (option) {
+		case 0:
+			return 0.5;
+		case 1:
+			return 1.0;
+		case 2:
+			return 2.0;
+		case 3:
+			return 4.0;
+		default:
+			return 1.0;
+		}
+	}
+	
 	public static void exportResults(List<Results> results){
 		List<String> lines = Arrays.asList(new Gson().toJson(results));
 		Path file = Paths.get(Main.GENERATION_PAYH + File.separator + "result.json");

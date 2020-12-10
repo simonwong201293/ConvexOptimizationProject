@@ -7,4 +7,6 @@ public class Results {
 	public String variationFlowtime;
 	public String reliability;
 	public String maxFlowtime;
+	public String failureRate;
+	public String unfinishedRate;
 }

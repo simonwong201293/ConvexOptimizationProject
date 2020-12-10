@@ -1,0 +1,1 @@
+{"config":{"totalJobs":100,"totalServers":1,"totalDuration":100,"maxWorkload":10},"servers":[{"index":0,"occupied":false,"multiplier":0.5,"inputTime":-1,"savedJobs":[]}]}
