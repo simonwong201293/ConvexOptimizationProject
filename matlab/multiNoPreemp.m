@@ -1,4 +1,4 @@
-numlist = [100];
+numlist = [10];
 tocs = zeros(length(numlist),10);
 for ii = 1:length(numlist)
     for jj = 0:9
