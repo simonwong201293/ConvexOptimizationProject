@@ -30,7 +30,7 @@ public class ProposedJobScheduler extends JobScheduler {
 		Map<Integer, Job> result = new HashMap<>();
 		if (singleServerSchedule != null) {
 			for (int j = 0; j < Main.totalJobs; j++) {
-				if (singleServerSchedule[j][(int) Main.time - 1] == 1) {
+				if (singleServerSchedule[j][(int) Main.time] == 1) {
 					Job job = findJob(j, jobs);
 					if (job != null) {
 						result.put(0, job);
@@ -38,41 +38,39 @@ public class ProposedJobScheduler extends JobScheduler {
 				}
 			}
 		} else if(schedule != null){
-			System.out.println("schedule[a][b][c], a = " + schedule.length + ", b = " + schedule[0].length + ", c = "
-					+ schedule[0][0].length);
 			if (Main.time <= Main.totalDuration) {
 				for (int i = 0; i < schedule.length; i++) {
 					for (int j = 0; j < schedule[0].length; j++) {
-						if (schedule[i][j][(int) Main.time - 1] == 1) {
+						if (schedule[i][j][(int) Main.time] == 1) {
 							Job job = findJob(i, jobs);
 							if (job != null) {
 								result.put(j, job);
-								System.out.println("put job#" + job.index + " to server#" + j);
 							}
 						}
 					}
 				}
-			} else {
-				Collections.sort(jobs, new Comparator<Job>() {
-					@Override
-					public int compare(Job arg0, Job arg1) {
-						return arg0.deadline > arg1.deadline ? 1 : arg0.deadline < arg1.deadline ? -1 : 0;
-					}
-
-				});
-				for (Server server : servers) {
-					if (server.occupied)
-						continue;
-					for (Job j : jobs) {
-						if (assignedSet.contains(j.index))
-							continue;
-						result.put(server.index, j);
-						assignedSet.add(j.index);
-						servers.get(server.index).occupied = true;
-						break;
-					}
-				}
 			}
+//			else {
+//				Collections.sort(jobs, new Comparator<Job>() {
+//					@Override
+//					public int compare(Job arg0, Job arg1) {
+//						return arg0.deadline > arg1.deadline ? 1 : arg0.deadline < arg1.deadline ? -1 : 0;
+//					}
+//
+//				});
+//				for (Server server : servers) {
+//					if (server.occupied)
+//						continue;
+//					for (Job j : jobs) {
+//						if (assignedSet.contains(j.index))
+//							continue;
+//						result.put(server.index, j);
+//						assignedSet.add(j.index);
+//						servers.get(server.index).occupied = true;
+//						break;
+//					}
+//				}
+//			}
 		}else {
 			for (Server server : servers) {
 				if(server.occupied) continue;
@@ -116,7 +114,7 @@ public class ProposedJobScheduler extends JobScheduler {
 
 	public void bindSchedule(int trial) {
 		try {
-			String text = new String(Files.readAllBytes(Paths.get(Main.GENERATION_PAYH + File.separator + "totalserver_"
+			String text = new String(Files.readAllBytes(Paths.get(Main.SOLUTION_PATH + File.separator + "totalserver_"
 					+ Main.totalServers + "_trial_" + trial + "_result.txt")), StandardCharsets.UTF_8);
 			try {
 				schedule = new Gson().fromJson(text, int[][][].class);
@@ -124,7 +122,7 @@ public class ProposedJobScheduler extends JobScheduler {
 				singleServerSchedule = new Gson().fromJson(text, int[][].class);
 			}
 		} catch (Exception ignored) {
-//			System.out.println("Schedule import e = " + ignored.toString());
+			System.out.println("Schedule import e = " + ignored.toString());
 		}
 	}
 

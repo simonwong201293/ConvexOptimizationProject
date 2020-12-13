@@ -15,7 +15,7 @@ import com.hkust.project.convex.Main;
 import com.hkust.project.convex.backup.Results;
 
 public class Utility {
-	
+
 	public static long generateRandomTime(Random rng, long max) {
 		long bits, val;
 		do {
@@ -24,7 +24,7 @@ public class Utility {
 		} while (bits - val + (max - 1) < 0L);
 		return val;
 	}
-	
+
 	public static double convert(int option) {
 		switch (option) {
 		case 0:
@@ -39,13 +39,15 @@ public class Utility {
 			return 1.0;
 		}
 	}
-	
-	public static void exportResults(List<Results> results){
+
+	public static void exportResults(List<Results> results) {
 		List<String> lines = Arrays.asList(new Gson().toJson(results));
-		Path file = Paths.get(Main.GENERATION_PAYH + File.separator + "result.json");
+		Path file = Paths.get(Main.GENERATION_PAYH + File.separator + "result_"
+				+ (Main.heterogenous ? "heterogeneous" : Main.preemptable ? "preemp" : "nonpreemp") + ".json");
 		try {
 			Files.write(file, lines, StandardCharsets.UTF_8);
-			System.out.println("Exported to " + Main.GENERATION_PAYH + File.separator + "result.json");
+			System.out.println("Exported to " + Main.GENERATION_PAYH + File.separator + "result_"
+					+ (Main.heterogenous ? "heterogeneous" : Main.preemptable ? "preemp" : "nonpreemp") + ".json");
 		} catch (IOException ignored) {
 			System.out.println("Export failure : " + ignored.toString());
 		}

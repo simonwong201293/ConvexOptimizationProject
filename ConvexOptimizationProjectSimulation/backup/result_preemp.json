@@ -1,0 +1,102 @@
+[
+  {
+    "totalServer": "1",
+    "schedule": "FIFO",
+    "averageFlowtime": "3.7049999999999943",
+    "variationFlowtime": "573.1260000000004",
+    "reliability": "0.4899999999999997",
+    "maxFlowtime": "58.4",
+    "failureRate": "0.06600000000000002",
+    "unfinishedRate": "0.15899999999999997"
+  },
+  {
+    "totalServer": "10",
+    "schedule": "FIFO",
+    "averageFlowtime": "10.822000000000012",
+    "variationFlowtime": "881.4159999999997",
+    "reliability": "0.9049999999999997",
+    "maxFlowtime": "68.5",
+    "failureRate": "0.06599999999999993",
+    "unfinishedRate": "0.6300000000000001"
+  },
+  {
+    "totalServer": "1",
+    "schedule": "SVF",
+    "averageFlowtime": "3.9359999999999946",
+    "variationFlowtime": "569.7800000000003",
+    "reliability": "0.4839999999999997",
+    "maxFlowtime": "58.9",
+    "failureRate": "0.07000000000000003",
+    "unfinishedRate": "0.19300000000000025"
+  },
+  {
+    "totalServer": "10",
+    "schedule": "SVF",
+    "averageFlowtime": "10.822000000000012",
+    "variationFlowtime": "881.4159999999997",
+    "reliability": "0.9049999999999997",
+    "maxFlowtime": "68.5",
+    "failureRate": "0.06599999999999993",
+    "unfinishedRate": "0.6300000000000001"
+  },
+  {
+    "totalServer": "1",
+    "schedule": "EDF",
+    "averageFlowtime": "11.801000000000018",
+    "variationFlowtime": "393.9120000000005",
+    "reliability": "0.5050000000000001",
+    "maxFlowtime": "67.8",
+    "failureRate": "0.23199999999999998",
+    "unfinishedRate": "1.2130000000000007"
+  },
+  {
+    "totalServer": "10",
+    "schedule": "EDF",
+    "averageFlowtime": "7.461999999999988",
+    "variationFlowtime": "985.2119999999991",
+    "reliability": "1.0",
+    "maxFlowtime": "20.5",
+    "failureRate": "0.0",
+    "unfinishedRate": "0.06899999999999999"
+  },
+  {
+    "totalServer": "1",
+    "schedule": "STRF",
+    "averageFlowtime": "8.407",
+    "variationFlowtime": "778.1560000000006",
+    "reliability": "0.4550000000000001",
+    "maxFlowtime": "68.6",
+    "failureRate": "0.12100000000000007",
+    "unfinishedRate": "0.22399999999999987"
+  },
+  {
+    "totalServer": "10",
+    "schedule": "STRF",
+    "averageFlowtime": "10.803999999999991",
+    "variationFlowtime": "1061.622",
+    "reliability": "0.8439999999999992",
+    "maxFlowtime": "59.2",
+    "failureRate": "0.1270000000000001",
+    "unfinishedRate": "1.0700000000000016"
+  },
+  {
+    "totalServer": "1",
+    "schedule": "Proposed",
+    "averageFlowtime": "4.726",
+    "variationFlowtime": "558.263",
+    "reliability": "0.5240000000000001",
+    "maxFlowtime": "61.9",
+    "failureRate": "0.001",
+    "unfinishedRate": "0.12900000000000017"
+  },
+  {
+    "totalServer": "10",
+    "schedule": "Proposed",
+    "averageFlowtime": "4.864999999999996",
+    "variationFlowtime": "720.9290000000005",
+    "reliability": "0.6969999999999998",
+    "maxFlowtime": "10.1",
+    "failureRate": "0.0",
+    "unfinishedRate": "0.9289999999999986"
+  }
+]

@@ -29,12 +29,16 @@ import com.hkust.project.convex.util.Utility;
 
 public class Main {
 
+	public static final boolean preemptable = true;
+	public static final boolean heterogenous = !true;
+
 	public static final String BASE_PATH = System.getProperty("user.dir");
 	public static final String GENERATION_PAYH = BASE_PATH + File.separator + "backup";
+	public static final String SOLUTION_PATH = BASE_PATH + File.separator + ".." + File.separator
+			+ (heterogenous ? "HeterogenousSolutions" : preemptable ? "SolutionPreemp" : "SolutionNoPreemp");
 
-	public static final boolean heterogenous = !true;
 	public static final int totalJobs = 100;
-	public static final int[] totalServerOptions = { 1, 10, 100 };
+	public static final int[] totalServerOptions = {10};
 	public static final int totalTrials = 10;
 	public static int totalServers = 1;
 	public static final long totalDuration = 100;
@@ -86,8 +90,9 @@ public class Main {
 			job.completedTime = Main.time;
 			completed.put(job.index, job);
 			// if (startLog)
-//			System.out.println(
-//					"onServerCompleted index=" + index + ", job=" + new Gson().toJson(job) + "@Time = " + time);
+			// System.out.println(
+			// "onServerCompleted index=" + index + ", job=" + new Gson().toJson(job) +
+			// "@Time = " + time);
 		}
 
 		@Override
@@ -108,8 +113,9 @@ public class Main {
 				// job.completedTime = Main.time;
 				// completed.put(job.index, job);
 				// if (startLog)
-				System.out.println(
-						"onServerJobUpdate index=" + index + ", job=" + new Gson().toJson(job) + "@Time = " + time);
+				// System.out.println(
+				// "onServerJobUpdate index=" + index + ", job=" + new Gson().toJson(job) +
+				// "@Time = " + time);
 				// }else {
 				if (job.deadline < time) {
 					queue.put(job.index, job);
@@ -132,22 +138,25 @@ public class Main {
 				/*
 				 * Load Server
 				 */
-				ServerBackup serverbackup = ServerBackup
-						.loadBackups("totalserver_" + totalServers + "_server_trial_" + serverTrial + ".txt");
-				for (int i = 0; i < totalServers; i++) {
-					serverbackup.servers.get(i).bindCallback(mSCallback);
-					servers.put(serverbackup.servers.get(i).index, serverbackup.servers.get(i));
+				if (heterogenous) {
+					ServerBackup serverbackup = ServerBackup
+							.loadBackups("totalserver_" + totalServers + "_server_trial_" + serverTrial + ".txt");
+					for (int i = 0; i < totalServers; i++) {
+						serverbackup.servers.get(i).bindCallback(mSCallback);
+						servers.put(serverbackup.servers.get(i).index, serverbackup.servers.get(i));
+					}
+				} else {
+					/*
+					 * Generate Server
+					 */
+					for (int i = 0; i < totalServers; i++) {
+						Server server = Server.instance(i, mSCallback);
+						servers.put(i, server);
+					}
+					// ServerBackup.instance(new ArrayList<>(servers.values()))
+					// .exportServerBackups("totalserver_" + totalServers + "_server_trial_" +
+					// serverTrial + ".txt");
 				}
-				/*
-				 * Generate Server
-				 */
-				// for (int i = 0; i < totalServers; i++) {
-				// Server server = Server.instance(i, mSCallback);
-				// servers.put(i, server);
-				// }
-				// ServerBackup.instance(new ArrayList<>(servers.values()))
-				// .exportServerBackups("totalserver_" + totalServers + "_server_trial_" +
-				// serverTrial + ".txt");
 
 				for (int trial = 0; trial < totalTrials; trial++) {
 					/*
@@ -238,9 +247,10 @@ public class Main {
 								server.run();
 							time++;
 							// if (startLog)
-//							System.out.println("Schedule:" + getScheduleName(p) + ", In Buffer:"
-//									+ jobInputter.getRemainingJobSize() + ", Queue:" + queue.size() + ",completed:"
-//									+ completed.size() + "@Time:" + time);
+							// System.out.println("Schedule:" + getScheduleName(p) + ", In Buffer:"
+							// + jobInputter.getRemainingJobSize() + ", Queue:" + queue.size() +
+							// ",completed:"
+							// + completed.size() + "@Time:" + time);
 							if (time + 1 > totalDuration)
 								break;
 						}
@@ -254,8 +264,8 @@ public class Main {
 						for (Job j : completed.values()) {
 							totalFlowtime += j.completedTime - j.arrivalTime;
 							variation += (j.deadline - j.completedTime) * (j.deadline - j.completedTime);
-							totalCompleted += (j.completedTime <= j.deadline) ? 1 : 0;
-							unfinished += j.remainingWorkload;
+							totalCompleted += (j.completedTime != -1 && j.completedTime <= j.deadline) ? 1 : 0;
+							unfinished += j.remainingWorkload > 0 ? j.remainingWorkload : 0;
 							failure += (j.completedTime == -1 || j.completedTime > j.deadline ? 1 : 0);
 							if (j.completedTime - j.arrivalTime > max)
 								max = j.completedTime - j.arrivalTime;
@@ -268,7 +278,19 @@ public class Main {
 						maxFlowtime[p][serverTrial][trial][k] = max;
 						// System.out.println("a=" + p + ",b=" + serverTrial + ",c=" + trial + ",d=" +
 						// k);
+						System.out.println(String.format(
+								"Server Set: %3s (%3s#)\t Job Set: %3s\t Schedule: %8s\t Average Flowtime: %4s\t Variation: %6s\t Reliability: %4s\t Max. Flowtime: %4s\t UnfinishedRate: %4s\t Failure Rate: %4s",
+								String.format("%d,", serverTrial), String.valueOf(totalServerOptions[k]),
+								String.format("%d,", trial), getScheduleName(p),
+								String.format("%.2f,", averageFlowtime[p][serverTrial][trial][k]),
+								String.format("%.2f,", variationFlowtime[p][serverTrial][trial][k]),
+								String.format("%.2f,", relability[p][serverTrial][trial][k]),
+								String.format("%.2f,", maxFlowtime[p][serverTrial][trial][k]),
+								String.format("%.2f,",
+										unfinishedRate[p][serverTrial][trial][k] = (unfinished * 1.0 / totalJobs)),
+								String.format("%.2f,", failureRate[p][serverTrial][trial][k])));
 					}
+					System.out.println(" ");
 				}
 			}
 		}
@@ -286,18 +308,26 @@ public class Main {
 						unfinished += unfinishedRate[i][l][k][j];
 						failure += failureRate[i][l][k][j];
 					}
+
 				}
 				String summary = String.format(
-						"Total Server: %3s\t Schedule: %8s\t Average Flowtime: %.2f\t Variation: %.2f\t Reliability: %.2f\t Max. Flowtime: %.2f\t UnfinishedRate: %.2f\t Failure Rate: %.2f",
-						String.valueOf(totalServerOptions[j]), getScheduleName(i), average / (totalTrials * totalTrials * 1.0), variation / (totalTrials * totalTrials * 1.0), 
-						reliability / (totalTrials * totalTrials * 1.0), max / (totalTrials * totalTrials * 1.0), unfinished / (totalTrials * totalTrials * 1.0),
-						failure / (totalTrials * totalTrials * 1.0));
+						"Total Server: %3s\t Schedule: %8s\t Average Flowtime: %4s\t Variation: %6s\t Reliability: %4s\t Max. Flowtime: %4s\t UnfinishedRate: %4s\t Failure Rate: %4s",
+						String.valueOf(totalServerOptions[j]), getScheduleName(i),
+						String.format("%.2f,", average / (totalTrials * totalTrials * 1.0)),
+						String.format("%.2f,", variation / (totalTrials * totalTrials * 1.0)),
+						String.format("%.2f,", reliability / (totalTrials * totalTrials * 1.0)),
+						String.format("%.2f,", max / (totalTrials * totalTrials * 1.0)),
+						String.format("%.2f,", unfinished / (totalTrials * totalTrials * 1.0)),
+						String.format("%.2f,", failure / (totalTrials * totalTrials * 1.0)));
 				System.out.println(summary);
-//				System.out.println(String.format"Total Server: " + totalServerOptions[j] + ",\t  Schedule: " + getScheduleName(i)
-//						+ ",\t Average Flowtime: " + average / (totalTrials * totalTrials * 1.0)
-//						+ ",\t Variation of Flowtime: " + variation / (totalTrials * totalTrials * 1.0)
-//						+ ",\t Reliability: " + reliability / (totalTrials * totalTrials * 1.0) + ",\t Max Flowtime: "
-//						+ max / (totalTrials * totalTrials * 1.0));
+				// System.out.println(String.format"Total Server: " + totalServerOptions[j] +
+				// ",\t Schedule: " + getScheduleName(i)
+				// + ",\t Average Flowtime: " + average / (totalTrials * totalTrials * 1.0)
+				// + ",\t Variation of Flowtime: " + variation / (totalTrials * totalTrials *
+				// 1.0)
+				// + ",\t Reliability: " + reliability / (totalTrials * totalTrials * 1.0) +
+				// ",\t Max Flowtime: "
+				// + max / (totalTrials * totalTrials * 1.0));
 				Results result = new Results();
 				result.totalServer = String.valueOf(totalServerOptions[j]);
 				result.schedule = getScheduleName(i);

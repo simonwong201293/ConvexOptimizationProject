@@ -7,22 +7,25 @@ import json
 import os
 
 # import data
-with open('{}\\{}'.format( os.getcwd(), 'result.json')) as f:
+with open('{}\\{}'.format( os.getcwd(), 'result_nonpreemp.json')) as f:
     json_data = json.load(f)
 width_in_inches = 10 #330
 height_in_inches = 7
 dots_per_inch = 66
 plt.rcParams.update({'font.size': 24})
 
-y = [[0 for x in range(3)] for y in range(5)]
-print(y)
-for i in range(5):
-    for j in range(3):
-        y[i][j] = float(json_data[i*3+j]["averageFlowtime"])
-        # print(json_data[i*4+j]["averageFlowtime"])
-        print('i = {}, j = {}, value = {}'.format(i, j, json_data[i*3+j]["averageFlowtime"]))
+serverOptions = 2
+totalSchedule = 5
 
-x = ['100', '10', '1']
+y = [[0 for x in range(serverOptions)] for y in range(totalSchedule)]
+print(y)
+for i in range(totalSchedule):
+    for j in range(serverOptions):
+        y[i][j] = float(json_data[i*serverOptions+(serverOptions-j-1)]["averageFlowtime"])
+        # print(json_data[i*4+j]["averageFlowtime"])
+        print('index = {}, i = {}, j = {}, value = {}'.format(i*serverOptions+(serverOptions-j-1), i, j, json_data[i*serverOptions+(serverOptions-j-1)]["averageFlowtime"]))
+
+x = ['10', '100']
 labels = ['FIFO', 'SVF', 'EDF', 'STRF', 'Proposed']
 color = ["#1F78B4", "#33A02C", "#FF7F00", "#FB9A99", "#CAB2D6"]
 marker = ['o', 'x', '^', '>', '<']
@@ -59,11 +62,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y2 = [[0 for x in range(3)] for y in range(5)]
-for i in range(5):
-    for j in range(3):
-        y2[i][j] = float(json_data[i*3+(3-j)]["variationFlowtime"])/1000.0
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["variationFlowtime"])/1000.0))
+y2 = [[0 for x in range(serverOptions)] for y in range(totalSchedule)]
+for i in range(totalSchedule):
+    for j in range(serverOptions):
+        y2[i][j] = float(json_data[i*serverOptions+(serverOptions-j-1)]["variationFlowtime"])/1000.0
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*serverOptions+(serverOptions-j-1)]["variationFlowtime"])/1000.0))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
@@ -82,11 +85,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y3 = [[0 for x in range(3)] for y in range(5)]
-for i in range(5):
-    for j in range(3):
-        y3[i][j] = float(json_data[i*3+(3-j)]["reliability"])*100.0
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["reliability"])*100.0))
+y3 = [[0 for x in range(serverOptions)] for y in range(totalSchedule)]
+for i in range(totalSchedule):
+    for j in range(serverOptions):
+        y3[i][j] = float(json_data[i*serverOptions+(serverOptions-j-1)]["reliability"])*100.0
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*serverOptions+(serverOptions-j-1)]["reliability"])*100.0))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
@@ -105,11 +108,11 @@ plt.show()
 
 
 plt.rcParams.update({'font.size': 24})
-y4 = [[0 for x in range(3)] for y in range(5)]
-for i in range(5):
-    for j in range(3):
-        y4[i][j] = float(json_data[i*3+(3-j)]["maxFlowtime"])
-        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*3+j]["maxFlowtime"])))
+y4 = [[0 for x in range(serverOptions)] for y in range(totalSchedule)]
+for i in range(totalSchedule):
+    for j in range(serverOptions):
+        y4[i][j] = float(json_data[i*serverOptions+(serverOptions-j-1)]["maxFlowtime"])
+        print('i = {}, j = {}, value = {}'.format(i, j, float(json_data[i*serverOptions+(serverOptions-j-1)]["maxFlowtime"])))
 i = 0
 fig = plt.figure(
     figsize=(width_in_inches, height_in_inches),
