@@ -26,7 +26,7 @@ This repository contains:
 
 **Overall Numeric Result**
 
-1. 22.9% reductionin a single server maximum job flowtime
+1. 22.9% reduction in a single server maximum job flowtime
 1. 58.5% reduction in multiple identical servers maximum job flowtime
 1. Competitive algorithm in heterogeneous servers maximum job flowtime with a 17.4% reduction in average job flowtime
 
