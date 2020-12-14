@@ -8,7 +8,7 @@ With growing demands for resource-demanding jobs in different technologies like 
 
 **Keyword**
 
-Resource-aware, Job Scheduling, Heterogeneous System, Conve
+Resource-aware, Job Scheduling, Heterogeneous System, Convex Optimization
 
 **Description**
 
