@@ -32,4 +32,4 @@ This repository contains:
 
 **Acknowledgement**
 
-This work was initiated by ELEC5470/IEDA6100A - Convex Optimization at Hong Kong University of Science & Technol-ogy.
+This work was initiated by ELEC5470/IEDA6100A - Convex Optimization at Hong Kong University of Science & Technology.
